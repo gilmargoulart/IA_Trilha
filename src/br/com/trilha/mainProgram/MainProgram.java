@@ -5,6 +5,7 @@ import br.com.trilha.tela.Tabuleiro;
 
 public class MainProgram {
 
+	@SuppressWarnings("unused")
 	private Tabuleiro frame;
 
 	/**
@@ -14,8 +15,8 @@ public class MainProgram {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					@SuppressWarnings("unused")
 					MainProgram window = new MainProgram();
-					window.frame.setVisible(true);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
