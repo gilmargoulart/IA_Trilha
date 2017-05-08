@@ -414,7 +414,7 @@ public class Tabuleiro extends JFrame {
 		a2.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(a1,d2,a3)));
 		a3.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(a2,h3)));
 		//
-		b1.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(a1,b1,c1)));
+		b1.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(a1,b2,c1)));
 		b2.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(b1,b3,d1,f1)));
 		b3.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(b2,e1,g1)));
 		//
