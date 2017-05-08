@@ -364,7 +364,7 @@ public class Tabuleiro extends JFrame {
 		
 		separator = new JSeparator();
 		separator.setOrientation(SwingConstants.VERTICAL);
-		separator.setBounds(292, 611, 2, 145);
+		separator.setBounds(292, 611, 2, 138);
 		getContentPane().add(separator);
 		
 		lblPecaPlayer1 = new JLabel("");
@@ -378,7 +378,7 @@ public class Tabuleiro extends JFrame {
 		getContentPane().add(lblPecaPlayer2);
 		
 		pbBotPlaying = new JProgressBar();
-		pbBotPlaying.setBounds(10, 753, 273, 14);
+		pbBotPlaying.setBounds(10, 753, 463, 19);
 		getContentPane().add(pbBotPlaying);
 	}
 
@@ -391,9 +391,6 @@ public class Tabuleiro extends JFrame {
 	}
 	
 	public void refreshStatusCaptions(){
-		
-		//definirPecasVizinhas();
-		//definirMoinhos();
 		
 		if (getPlayer1().getQtdPecasIniciaisRestantes() == 0 && getPlayer2().getQtdPecasIniciaisRestantes() == 0) {
 			gameStarted = true;
@@ -408,6 +405,31 @@ public class Tabuleiro extends JFrame {
 		txtPlayer2PecasEmJogo.setText(String.valueOf(player2.getQtdPecas()));
 		txtPlayer2PecasAdversario.setText(String.valueOf(player2.getQtdPecasAdversario()));
 		
+		if (gameStarted) {
+			//Verifica se o player pode movimentar a peça para qualquer casa em branco 
+			if (player1.getQtdPecas() == 3) {
+				player1.setMovimentaPecasEmQualquerLugar();
+			} else if (player1.getQtdPecas() < 3) { //Verifica fim de jogo
+				pbBotPlaying.setString("VENCEDOR: " + player2.getNome() + ".");
+				pbBotPlaying.setStringPainted(true);
+				JOptionPane.showMessageDialog(null, "Parabéns " + player2.getNome() + ", você venceu!", "Vencedor.", JOptionPane.INFORMATION_MESSAGE);
+				gameOver = true;
+			}
+		
+			if (player2.getQtdPecas() == 3) {
+				player2.setMovimentaPecasEmQualquerLugar();
+			} else if (player2.getQtdPecas() < 3) {
+				pbBotPlaying.setString("VENCEDOR: " + player1.getNome() + ".");
+				pbBotPlaying.setStringPainted(true);
+				JOptionPane.showMessageDialog(null, "Parabéns " + player1.getNome() + ", você venceu!", "Vencedor.", JOptionPane.INFORMATION_MESSAGE);
+				gameOver = true;
+			}
+			
+			if (gameOver) {
+				player1.setVezDoJogador(false);
+				player2.setVezDoJogador(false);
+			}
+		}
 		if (player1.isVezDoJogador()){
 			lblPlayer1.setIcon(imgJogadorDaVez);
 			lblPlayer1.setToolTipText("Efetuando jogada.");
@@ -418,16 +440,21 @@ public class Tabuleiro extends JFrame {
 			
 			lblPecaPlayer1.setEnabled(true);
 			lblPecaPlayer2.setEnabled(false);
-			
+
+			pbBotPlaying.setString("Aguardando " + player1.getNome() + " realizar a jogada.");
+			pbBotPlaying.setStringPainted(true);
 			pbBotPlaying.setIndeterminate(true);
 			jogadaBot();
-		} else {
+		} else if (player2.isVezDoJogador()){
 			lblPlayer2.setIcon(imgJogadorDaVez);
 			lblPlayer2.setToolTipText("Efetuando jogada.");
 			jogadorDaVez = player2;
 			
 			lblPlayer1.setIcon(imgJogadorAguardando);
 			lblPlayer1.setToolTipText("Aguardando " + player2.getNome() + " realizar a jogada.");
+			
+			pbBotPlaying.setString("Aguardando " + player2.getNome() + " realizar a jogada.");
+			pbBotPlaying.setStringPainted(true);
 			
 			lblPecaPlayer1.setEnabled(false);
 			lblPecaPlayer2.setEnabled(true);
@@ -605,12 +632,7 @@ public class Tabuleiro extends JFrame {
 			@Override
 			public void run() {
 				//Delay de 2 segundos antes do processamento, para simular que outro player está "Pensando"
-				
-				try {
-					Thread.sleep(2000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
+				sleep(2);
 				
 				Peca pecajogada = null;
 				
@@ -653,13 +675,37 @@ public class Tabuleiro extends JFrame {
 					}
 					
 					if (!jogadaEfetuada) {
-						//Buscar peças que não tenham peças vizinhas do adversário.
+						//Buscar peças que não tenham peças vizinhas do adversário ou do bot.
 						System.out.println("Buscando peças com peças vizinhas em branco também...");
 						for (Peca p : pecas) {
 							if (p.getTipoPeca() == TipoPeca.EM_BRANCO){
 								boolean pecasVizinhasEmBranco = true;
 								for (Peca p2 : p.getPecasVizinhas()){
-									if (p2.getTipoPeca() == player1.getTipoPeca()) {
+									if (p2.getTipoPeca() == player1.getTipoPeca() || p2.getTipoPeca() == player2.getTipoPeca()) {
+										pecasVizinhasEmBranco = false;
+										break;
+									}
+								}
+								if (pecasVizinhasEmBranco){ //Efetuar jogada
+									p.setTipoPeca(player1.getTipoPeca());
+									player1.addPeca(p);
+									player1.diminuiQtdPecasIniciais();
+									jogadaEfetuada = true;
+									pecajogada = p;
+									break;
+								}
+							}
+						}
+					}
+					
+					if (!jogadaEfetuada) {
+						//Buscar peças que não tenham peças vizinhas do adversário.
+						System.out.println("Buscando peças do bot com peças vizinhas em branco...");
+						for (Peca p : pecas) {
+							if (p.getTipoPeca() == TipoPeca.EM_BRANCO){
+								boolean pecasVizinhasEmBranco = true;
+								for (Peca p2 : p.getPecasVizinhas()){
+									if (p2.getTipoPeca() == player2.getTipoPeca()) {
 										pecasVizinhasEmBranco = false;
 										break;
 									}
@@ -717,18 +763,64 @@ public class Tabuleiro extends JFrame {
 					boolean moinhoDetectado = pecajogada.isMoinho(); 
 					if (moinhoDetectado){
 						System.out.println("Moinho detectado... Removendo uma peça.");
-						//JOptionPane.showMessageDialog(null, "Moinho detectado. Selecione uma peça do adversário para remover.", "Moinho detectado", JOptionPane.INFORMATION_MESSAGE);
-					}
-					
-					if (moinhoDetectado) {
-						//TODO Identificar qual peça do adversário remover.
+						pbBotPlaying.setString("Moinho detectado... Removendo uma peça.");
+						pbBotPlaying.setStringPainted(true);
+						
+						sleep(1);
+						boolean pecaRemovida = false;
+						//Verificar peças do adversário que "formariam" um moinho
+						for (Peca p : pecas) {
+							if (p.getTipoPeca() == player2.getTipoPeca()) {
+								for (List<Peca> lp : p.getMoinhos()) {
+									if (lp.get(0).getTipoPeca() == player2.getTipoPeca()) {
+										lp.get(0).setTipoPeca(TipoPeca.EM_BRANCO);
+										player2.removerPeca(lp.get(0));
+										player1.addPecaAdversario(lp.get(0));
+										player1.setMoinhoDetectado(false);
+										pecaRemovida = true;
+										break;
+									}
+									if (lp.get(1).getTipoPeca() == player2.getTipoPeca()){
+										lp.get(1).setTipoPeca(TipoPeca.EM_BRANCO);
+										player2.removerPeca(lp.get(1));
+										player1.addPecaAdversario(lp.get(1));
+										player1.setMoinhoDetectado(false);
+										pecaRemovida = true;
+										break;
+									}
+								}
+								if (pecaRemovida) {
+									break;
+								}
+							}
+						}
+						
+						if (!pecaRemovida) {
+							for (Peca p : pecas) {
+								if (p.getTipoPeca() == player2.getTipoPeca()) {
+									p.setTipoPeca(TipoPeca.EM_BRANCO);
+									player2.removerPeca(p);
+									player1.addPecaAdversario(p);
+									player1.setMoinhoDetectado(false);
+									pecaRemovida = true;
+									break;
+								}
+							}
+						}
 					}
 				}
 				
-				//pbBotPlaying.setIndeterminate(false);
 				player1.passarJogada();
 				refreshStatusCaptions();
 			}
 		}).start();
+	}
+	
+	private void sleep(int seconds){
+		try {
+			Thread.sleep(seconds*1000);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
 	}
 }

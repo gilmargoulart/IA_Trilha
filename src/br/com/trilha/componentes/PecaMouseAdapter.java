@@ -19,6 +19,10 @@ public class PecaMouseAdapter extends MouseAdapter {
 	}
 	
 	public void mouseClicked(MouseEvent e) {
+		
+		//Não tratar eventos ao término do jogo.
+		if (tabuleiro.gameOver) return;
+		
 		//Verificar se o objeto é uma peça
 		if(e.getSource() != null && e.getSource() instanceof Peca){
 			
@@ -72,14 +76,12 @@ public class PecaMouseAdapter extends MouseAdapter {
 						
 						boolean moinhoDetectado = destinoPeca.isMoinho(); 
 						if (moinhoDetectado){
-							JOptionPane.showMessageDialog(null, "Moinho detectado. Selecione uma peça do adversário para remover.", "Moinho detectado", JOptionPane.INFORMATION_MESSAGE);
-						}
-						
-						if (moinhoDetectado) {
 							tabuleiro.getJogadorDaVez().setMoinhoDetectado(true);
+							JOptionPane.showMessageDialog(null, "Moinho detectado. Selecione uma peça do adversário para remover.", "Moinho detectado", JOptionPane.INFORMATION_MESSAGE);
 						} else {
 							tabuleiro.getJogadorDaVez().passarJogada();
 						}
+						
 						tabuleiro.refreshStatusCaptions();
 						
 						destinoPeca = null;
