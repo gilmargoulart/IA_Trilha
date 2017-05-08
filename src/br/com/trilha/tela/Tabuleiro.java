@@ -638,7 +638,99 @@ public class Tabuleiro extends JFrame {
 				
 				//Jogada do bot
 				if (gameStarted) {
+					boolean jogadaEfetuada = false;
 					
+					if (!jogadaEfetuada) {
+						//Verificar se tem alguma peça na posição para fazer um moinho
+						for (Peca p : pecas) {
+							if (p.getTipoPeca() == player1.getTipoPeca()) {
+								for (List<Peca> p1 : p.getMoinhos()) {
+									for (Peca p2 : p1) {
+										Peca possivelMoinho = p2.isPossivelMoinho();
+										if (possivelMoinho != null) {
+											//Verificar se tem alguma peça próxima para efetuar a jogada.
+											for (List<Peca> p3 : possivelMoinho.getMoinhos()) {
+												if (p3.get(0).getTipoPeca() == TipoPeca.EM_BRANCO) {
+													//efetuar jogada
+													for (Peca p4 : p3.get(0).getPecasVizinhas()) {
+														if (p4.getTipoPeca() == player1.getTipoPeca() && p3.get(0) != p4 && p3.get(1) != p4) {
+															p3.get(0).setTipoPeca(player1.getTipoPeca());
+															p4.setTipoPeca(TipoPeca.EM_BRANCO);
+															pecajogada = p3.get(0); 
+															jogadaEfetuada = true;
+															break;
+														}
+													}
+												}
+												
+												if (!jogadaEfetuada) {
+													if (p3.get(1).getTipoPeca() == TipoPeca.EM_BRANCO) {
+														//efetuar jogada
+														for (Peca p4 : p3.get(1).getPecasVizinhas()) {
+															if (p4.getTipoPeca() == player1.getTipoPeca()
+																	&& p3.get(0) != p4 && p3.get(1) != p4) {
+																p3.get(1).setTipoPeca(player1.getTipoPeca());
+																p4.setTipoPeca(TipoPeca.EM_BRANCO);
+																pecajogada = p3.get(1);
+																jogadaEfetuada = true;
+																break;
+															}
+														}
+													}
+												}
+												if (jogadaEfetuada) break;
+											}
+											if (jogadaEfetuada) break;
+										}
+									}
+									if (jogadaEfetuada) break;
+								}
+								if (jogadaEfetuada) break;
+							}
+						} 
+					}
+					
+					//Verificar possíveis moinhos do adversário, para mover a peça até esse lugar
+					for (Peca p : pecas) {
+						if (p.getTipoPeca() == player2.getTipoPeca()) { //Filtrar as peças do adversário.
+							for (List<Peca> p1 : p.getMoinhos()) {
+								Peca possivelMoinho = p1.get(0).isPossivelMoinho();
+								if (possivelMoinho != null && possivelMoinho.getTipoPeca() == TipoPeca.EM_BRANCO) {
+									//Navegar nas peças vizinhas afim de encontrar uma peça para trancar o jogador.
+									for (Peca pVizinha : possivelMoinho.getPecasVizinhas()) {
+										if (pVizinha.getTipoPeca() == player1.getTipoPeca()) {
+											//Mover esta peça para trancar o moinho do adversário.
+											possivelMoinho.setTipoPeca(player1.getTipoPeca());
+											pVizinha.setTipoPeca(TipoPeca.EM_BRANCO);
+											pecajogada = possivelMoinho; 
+											jogadaEfetuada = true;
+											break;
+										}
+									} 
+								}
+								if (jogadaEfetuada) break;
+							}
+							if (jogadaEfetuada) break;
+						}
+					}
+					
+					//Escolher qualquer peça para efetuar a movimentação.
+					if (!jogadaEfetuada) {
+						for (Peca p : pecas) {
+							if (p.getTipoPeca() == player1.getTipoPeca()) { //filtra as pecas do bot
+								for (Peca p2 : p.getPecasVizinhas()) {
+									if (p2.getTipoPeca() == TipoPeca.EM_BRANCO) {
+										p2.setTipoPeca(player1.getTipoPeca());
+										p.setTipoPeca(TipoPeca.EM_BRANCO);
+										pecajogada = p2;
+										jogadaEfetuada = true;
+										break;
+									}
+								}
+								if (jogadaEfetuada) break;
+							}
+						}
+					}
 				} else { // Ainda colocando as peças
 					boolean jogadaEfetuada = false;
 					
