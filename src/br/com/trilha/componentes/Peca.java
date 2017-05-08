@@ -94,7 +94,7 @@ public class Peca extends JLabel {
 	}
 	
 	/**
-	 * Retorna True se o espaço da peça estiver em branco, e as Peças de moinhos (em volta da peça em branco) forem do adversário.
+	 * Retorna Peça se o espaço da peça estiver em branco, e as Peças de moinhos (em volta da peça em branco) forem do adversário.
 	 */
 	public Peca isPossivelMoinho(){
 		Peca possivelMoinho = null;
@@ -108,6 +108,7 @@ public class Peca extends JLabel {
 		for (List<Peca> pecas : moinhos) {
 			qtd = qtdInicial;
 			
+			//Identificar Peças para o Moinho
 			if (pecas.get(0).getTipoPeca() == this.tipoPeca && this.tipoPeca != TipoPeca.EM_BRANCO) {
 				qtd++;
 			}
@@ -118,12 +119,13 @@ public class Peca extends JLabel {
 			
 			if (qtd >= 2) { //Possível Moinho
 				if (pecas.get(0).getTipoPeca() == TipoPeca.EM_BRANCO) {
-					possivelMoinho = pecas.get(0); 
+					possivelMoinho = pecas.get(0);
+					break;
 				}
 				if (pecas.get(1).getTipoPeca() == TipoPeca.EM_BRANCO) {
-					possivelMoinho = pecas.get(1); 
+					possivelMoinho = pecas.get(1);
+					break;
 				}
-				break;
 			}
 		}
 		

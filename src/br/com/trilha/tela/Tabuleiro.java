@@ -605,11 +605,14 @@ public class Tabuleiro extends JFrame {
 			@Override
 			public void run() {
 				//Delay de 2 segundos antes do processamento, para simular que outro player está "Pensando"
+				
 				try {
 					Thread.sleep(2000);
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
+				
+				Peca pecajogada = null;
 				
 				//Jogada do bot
 				if (gameStarted) {
@@ -619,13 +622,14 @@ public class Tabuleiro extends JFrame {
 					
 					System.out.println("Verificando possíveis moinhos do Bot...");
 					//Verificar se tem algum possível moinho pro Bot
-					for (final Peca p : player1.getPecas()) {
+					for (Peca p : player1.getPecas()) {
 						Peca possivelMoinho = p.isPossivelMoinho();
 						if (possivelMoinho != null){ //Efetuar jogada
 							possivelMoinho.setTipoPeca(player1.getTipoPeca());
 							player1.addPeca(possivelMoinho);
 							player1.diminuiQtdPecasIniciais();
 							jogadaEfetuada = true;
+							pecajogada = possivelMoinho;
 							break;
 						}
 					}
@@ -633,7 +637,7 @@ public class Tabuleiro extends JFrame {
 					if (!jogadaEfetuada) {
 						//Identificar possível moinho do adversário
 						System.out.println("Verificando possíveis moinhos do adversário...");
-						for (final Peca p : player2.getPecas()) {
+						for (Peca p : player2.getPecas()) {
 							//Trancar possível moinho do adversário.
 							Peca possivelMoinho = p.isPossivelMoinho();
 							if (possivelMoinho != null) { //Efetuar jogada
@@ -641,6 +645,7 @@ public class Tabuleiro extends JFrame {
 								player1.addPeca(possivelMoinho);
 								player1.diminuiQtdPecasIniciais();
 								jogadaEfetuada = true;
+								pecajogada = possivelMoinho;
 								System.out.println("Adversário tem um possível moinho... Trancando");
 								break;
 							}
@@ -650,10 +655,10 @@ public class Tabuleiro extends JFrame {
 					if (!jogadaEfetuada) {
 						//Buscar peças que não tenham peças vizinhas do adversário.
 						System.out.println("Buscando peças com peças vizinhas em branco também...");
-						for (final Peca p : pecas) {
+						for (Peca p : pecas) {
 							if (p.getTipoPeca() == TipoPeca.EM_BRANCO){
 								boolean pecasVizinhasEmBranco = true;
-								for (final Peca p2 : p.getPecasVizinhas()){
+								for (Peca p2 : p.getPecasVizinhas()){
 									if (p2.getTipoPeca() == player1.getTipoPeca()) {
 										pecasVizinhasEmBranco = false;
 										break;
@@ -664,6 +669,7 @@ public class Tabuleiro extends JFrame {
 									player1.addPeca(p);
 									player1.diminuiQtdPecasIniciais();
 									jogadaEfetuada = true;
+									pecajogada = p;
 									break;
 								}
 							}
@@ -673,13 +679,14 @@ public class Tabuleiro extends JFrame {
 					if (!jogadaEfetuada) {
 						// Verificar se o Bot tem alguma Peça em que a Peça vizinha está em branco.
 						System.out.println("Buscando peças vizinhas do Bot em branco...");
-						for (final Peca p : player1.getPecas()) {
-							for (final Peca p2 : p.getPecasVizinhas()) {
+						for (Peca p : player1.getPecas()) {
+							for (Peca p2 : p.getPecasVizinhas()) {
 								if (p2.getTipoPeca() == TipoPeca.EM_BRANCO){
 									p2.setTipoPeca(player1.getTipoPeca());
 									player1.addPeca(p2);
 									player1.diminuiQtdPecasIniciais();
 									jogadaEfetuada = true;
+									pecajogada = p2;
 									break;
 								}
 							}
@@ -689,19 +696,32 @@ public class Tabuleiro extends JFrame {
 					
 					//Se nenhum caso der certo, jogar em qualquer lugar que tenha uma peça em branco.
 					if (!jogadaEfetuada) {
-						final List<Peca> pecasEmBranco = new ArrayList<>();
+						List<Peca> pecasEmBranco = new ArrayList<>();
 						System.out.println("Jogando em qualquer lugar em branco...");
-						for (final Peca p : pecas) {
+						for (Peca p : pecas) {
 							if (p.getTipoPeca() == TipoPeca.EM_BRANCO) {
 								pecasEmBranco.add(p);
 							}
 						}
 						int index = new Random().nextInt(pecasEmBranco.size()-1);
-						final Peca p = pecas.get(index);
+						Peca p = pecas.get(index);
 						p.setTipoPeca(player1.getTipoPeca());
 						player1.addPeca(p);
 						player1.diminuiQtdPecasIniciais();
+						pecajogada = p;
 						jogadaEfetuada = true;
+					}
+				}
+				
+				if (pecajogada != null) {
+					boolean moinhoDetectado = pecajogada.isMoinho(); 
+					if (moinhoDetectado){
+						System.out.println("Moinho detectado... Removendo uma peça.");
+						//JOptionPane.showMessageDialog(null, "Moinho detectado. Selecione uma peça do adversário para remover.", "Moinho detectado", JOptionPane.INFORMATION_MESSAGE);
+					}
+					
+					if (moinhoDetectado) {
+						//TODO Identificar qual peça do adversário remover.
 					}
 				}
 				
