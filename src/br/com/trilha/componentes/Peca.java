@@ -92,4 +92,67 @@ public class Peca extends JLabel {
 	public void addPecaMoinho(List<Peca> pecas){
 		moinhos.add(pecas);
 	}
+	
+	/**
+	 * Retorna True se o espaço da peça estiver em branco, e as Peças de moinhos (em volta da peça em branco) forem do adversário.
+	 */
+	public Peca isPossivelMoinho(){
+		Peca possivelMoinho = null;
+		//if (tipoPeca == TipoPeca.EM_BRANCO) {
+		int qtdInicial = 0;
+		if (tipoPeca != TipoPeca.EM_BRANCO) {
+			qtdInicial++;
+		}
+		
+		int qtd = 0;
+		for (List<Peca> pecas : moinhos) {
+			qtd = qtdInicial;
+			
+			if (pecas.get(0).getTipoPeca() == this.tipoPeca && this.tipoPeca != TipoPeca.EM_BRANCO) {
+				qtd++;
+			}
+			
+			if (pecas.get(1).getTipoPeca() == this.tipoPeca && this.tipoPeca != TipoPeca.EM_BRANCO) {
+				qtd++;
+			}
+			
+			if (qtd >= 2) { //Possível Moinho
+				if (pecas.get(0).getTipoPeca() == TipoPeca.EM_BRANCO) {
+					possivelMoinho = pecas.get(0); 
+				}
+				if (pecas.get(1).getTipoPeca() == TipoPeca.EM_BRANCO) {
+					possivelMoinho = pecas.get(1); 
+				}
+				break;
+			}
+		}
+		
+		return possivelMoinho;
+	}
+	
+	public boolean isMoinho(){
+		boolean moinho = false;
+		for (List<Peca> pecas : moinhos) {
+			if (tipoPeca != TipoPeca.EM_BRANCO
+				&& pecas.get(0).getTipoPeca() == tipoPeca
+				&& pecas.get(1).getTipoPeca() == tipoPeca) {
+				moinho = true;
+				break;
+			}
+		}
+		
+		return moinho;
+	}
+	
+	public List<List<Peca>> getMoinhos(){
+		return this.moinhos;
+	}
+	
+	public void removerPecasVizinhas(){
+		pecasVizinhas.removeAll(pecasVizinhas);
+	}
+	
+	public void removerMoinhos(){
+		moinhos.removeAll(moinhos);
+	}
 }

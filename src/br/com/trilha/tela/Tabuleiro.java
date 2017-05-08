@@ -14,10 +14,14 @@ import br.com.trilha.enums.TipoPeca;
 import java.awt.Font;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Random;
+
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.JSeparator;
 import java.awt.Color;
+import javax.swing.JProgressBar;
 
 @SuppressWarnings("serial")
 public class Tabuleiro extends JFrame {
@@ -58,6 +62,7 @@ public class Tabuleiro extends JFrame {
 	private Peca h1;
 	private Peca h2;
 	private Peca h3;
+	private List<Peca> pecas = new ArrayList<>();
 	
 	//Status
 	private JLabel lblPlayer1;
@@ -80,6 +85,7 @@ public class Tabuleiro extends JFrame {
 	private JSeparator separator_1;
 	private JLabel lblPecaPlayer1;
 	private JLabel lblPecaPlayer2;
+	private JProgressBar pbBotPlaying;
 	
 	/**
 	 * Create the frame.
@@ -93,10 +99,15 @@ public class Tabuleiro extends JFrame {
 		initialize();
 		definirPecasVizinhas();
 		definirMoinhos();
+		atribuirPecasAoTabuleiro();
 		refreshStatusCaptions();
 		setVisible(true);
 	}
 	
+	private void atribuirPecasAoTabuleiro() {
+		pecas.addAll(new ArrayList<Peca>(Arrays.asList(a1, a2, a3, b1, b2, b3, c1, c2, c3, d1, d2, d3, e1, d2, d3, e1, e2, e3, f1, f2, f3, g1, g2, g3, h1, h2, h3)));
+	}
+
 	private void initialize() {
 		gameStarted = false;
 		gameOver = false;
@@ -365,6 +376,10 @@ public class Tabuleiro extends JFrame {
 		lblPecaPlayer2.setBounds(542, 616, 60, 60);
 		lblPecaPlayer2.setIcon(TipoPeca.PLAYER2.getImageIcon());
 		getContentPane().add(lblPecaPlayer2);
+		
+		pbBotPlaying = new JProgressBar();
+		pbBotPlaying.setBounds(10, 753, 273, 14);
+		getContentPane().add(pbBotPlaying);
 	}
 
 	public Player getPlayer1(){
@@ -376,6 +391,15 @@ public class Tabuleiro extends JFrame {
 	}
 	
 	public void refreshStatusCaptions(){
+		
+		//definirPecasVizinhas();
+		//definirMoinhos();
+		
+		if (getPlayer1().getQtdPecasIniciaisRestantes() == 0 && getPlayer2().getQtdPecasIniciaisRestantes() == 0) {
+			gameStarted = true;
+			System.out.println("Peças colocadas. Jogo começa agora.");
+		}
+		
 		txtPlayer1PecasRestantes.setText(String.valueOf(player1.getQtdPecasIniciaisRestantes()));
 		txtPlayer1PecasEmJogo.setText(String.valueOf(player1.getQtdPecas()));
 		txtPlayer1PecasAdversario.setText(String.valueOf(player1.getQtdPecasAdversario()));
@@ -394,6 +418,9 @@ public class Tabuleiro extends JFrame {
 			
 			lblPecaPlayer1.setEnabled(true);
 			lblPecaPlayer2.setEnabled(false);
+			
+			pbBotPlaying.setIndeterminate(true);
+			jogadaBot();
 		} else {
 			lblPlayer2.setIcon(imgJogadorDaVez);
 			lblPlayer2.setToolTipText("Efetuando jogada.");
@@ -404,120 +431,284 @@ public class Tabuleiro extends JFrame {
 			
 			lblPecaPlayer1.setEnabled(false);
 			lblPecaPlayer2.setEnabled(true);
+			
+			pbBotPlaying.setIndeterminate(false);
 		}
+		
 		
 	}
 	
 	private void definirPecasVizinhas(){
 		
+		a1.removerPecasVizinhas();
 		a1.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(a2,b1)));
+		a2.removerPecasVizinhas();
 		a2.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(a1,d2,a3)));
+		a3.removerPecasVizinhas();
 		a3.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(a2,h3)));
 		//
+		b1.removerPecasVizinhas();
 		b1.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(a1,b2,c1)));
+		b2.removerPecasVizinhas();
 		b2.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(b1,b3,d1,f1)));
+		b3.removerPecasVizinhas();
 		b3.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(b2,e1,g1)));
 		//
+		c1.removerPecasVizinhas();
 		c1.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(b1,c2)));
+		c2.removerPecasVizinhas();
 		c2.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(c1,f2,c3)));
+		c3.removerPecasVizinhas();
 		c3.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(h3,c2)));
 		//
+		d1.removerPecasVizinhas();
 		d1.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(b2,d2)));
+		d2.removerPecasVizinhas();
 		d2.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(d1,a2,e2,d3)));
+		d3.removerPecasVizinhas();
 		d3.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(d2,h2)));
 		//
+		e1.removerPecasVizinhas();
 		e1.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(b3,e2)));
+		e2.removerPecasVizinhas();
 		e2.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(e1,d2,e3)));
+		e3.removerPecasVizinhas();
 		e3.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(e2,h1)));
 		//
+		f1.removerPecasVizinhas();
 		f1.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(b2,f2)));
+		f2.removerPecasVizinhas();
 		f2.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(f1,g2,c2,f3)));
+		f3.removerPecasVizinhas();
 		f3.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(f2,h2)));
 		//
+		g1.removerPecasVizinhas();
 		g1.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(b3,g2)));
+		g2.removerPecasVizinhas();
 		g2.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(g1,f2,g3)));
+		g3.removerPecasVizinhas();
 		g3.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(g2,h1)));
 		//
+		h1.removerPecasVizinhas();
 		h1.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(g3,e3,h2)));
+		h2.removerPecasVizinhas();
 		h2.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(h1,d3,f3,h3)));
+		h3.removerPecasVizinhas();
 		h3.addPecaVizinha(new ArrayList<Peca>(Arrays.asList(h2,a3,c3)));
 	}
 	
 	private void definirMoinhos(){
+		a1.removerMoinhos();
 		a1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(b1, c1)));
 		a1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(a2, a3)));
 		
+		a2.removerMoinhos();
 		a2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(a1, a3)));
 		a2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(d2, e2)));
 		
+		a3.removerMoinhos();
 		a3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(a1, a2)));
 		a3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(h3, c3)));
 		// ----------------------------------------------------------
+		b1.removerMoinhos();
 		b1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(b2, b3)));
 		b1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(a1, c1)));
 		
+		b2.removerMoinhos();
 		b2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(b1, b3)));
 		b2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(d1, f1)));
 		
+		b3.removerMoinhos();
 		b3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(b1, b2)));
 		b3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(e1, g1)));
 		// ----------------------------------------------------------
+		c1.removerMoinhos();
 		c1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(c2, c3)));
 		c1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(a1, b1)));
 		
+		c2.removerMoinhos();
 		c2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(c1, c3)));
 		c2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(f2, g2)));
 		
+		c3.removerMoinhos();
 		c3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(c1, c2)));
 		c3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(h3, a3)));
 		// ----------------------------------------------------------
+		d1.removerMoinhos();
 		d1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(d2, d3)));
 		d1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(b2, f1)));
 		
+		d2.removerMoinhos();
 		d2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(d1, d3)));
 		d2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(a2, e2)));
 		
+		d3.removerMoinhos();
 		d3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(d1, d2)));
 		d3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(h2, f3)));
 		// ----------------------------------------------------------
+		e1.removerMoinhos();
 		e1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(e2, e3)));
 		e1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(b3, g1)));
 		
+		e2.removerMoinhos();
 		e2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(e1, e3)));
 		e2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(d2, a2)));
 		
+		e3.removerMoinhos();
 		e3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(e1, e2)));
 		e3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(h1, g3)));
 		// ----------------------------------------------------------
+		f1.removerMoinhos();
 		f1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(f2, f3)));
 		f1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(b2, d1)));
 		
+		f2.removerMoinhos();
 		f2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(f1, f3)));
 		f2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(g2, c2)));
 		
+		f3.removerMoinhos();
 		f3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(f1, f2)));
 		f3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(h2, d3)));
 		// ----------------------------------------------------------
+		g1.removerMoinhos();
 		g1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(g2, g3)));
 		g1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(b3, e1)));
 		
+		g2.removerMoinhos();
 		g2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(g1, g3)));
 		g2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(f2, c2)));
 		
+		g3.removerMoinhos();
 		g3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(g1, g2)));
 		g3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(h1, e3)));
 		// ----------------------------------------------------------
+		h1.removerMoinhos();
 		h1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(h2, h3)));
 		h1.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(e3, g3)));
 		
+		h2.removerMoinhos();
 		h2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(h1, h3)));
 		h2.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(d3, f3)));
 		
+		h3.removerMoinhos();
 		h3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(h1, h2)));
 		h3.addPecaMoinho(new ArrayList<Peca>(Arrays.asList(a3, c3)));
 	}
 
 	public Player getJogadorDaVez() {
 		return jogadorDaVez;
+	}
+	
+	private void jogadaBot(){
+		new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				//Delay de 2 segundos antes do processamento, para simular que outro player está "Pensando"
+				try {
+					Thread.sleep(2000);
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+				
+				//Jogada do bot
+				if (gameStarted) {
+					
+				} else { // Ainda colocando as peças
+					boolean jogadaEfetuada = false;
+					
+					System.out.println("Verificando possíveis moinhos do Bot...");
+					//Verificar se tem algum possível moinho pro Bot
+					for (final Peca p : player1.getPecas()) {
+						Peca possivelMoinho = p.isPossivelMoinho();
+						if (possivelMoinho != null){ //Efetuar jogada
+							possivelMoinho.setTipoPeca(player1.getTipoPeca());
+							player1.addPeca(possivelMoinho);
+							player1.diminuiQtdPecasIniciais();
+							jogadaEfetuada = true;
+							break;
+						}
+					}
+					
+					if (!jogadaEfetuada) {
+						//Identificar possível moinho do adversário
+						System.out.println("Verificando possíveis moinhos do adversário...");
+						for (final Peca p : player2.getPecas()) {
+							//Trancar possível moinho do adversário.
+							Peca possivelMoinho = p.isPossivelMoinho();
+							if (possivelMoinho != null) { //Efetuar jogada
+								possivelMoinho.setTipoPeca(player1.getTipoPeca());
+								player1.addPeca(possivelMoinho);
+								player1.diminuiQtdPecasIniciais();
+								jogadaEfetuada = true;
+								System.out.println("Adversário tem um possível moinho... Trancando");
+								break;
+							}
+						}
+					}
+					
+					if (!jogadaEfetuada) {
+						//Buscar peças que não tenham peças vizinhas do adversário.
+						System.out.println("Buscando peças com peças vizinhas em branco também...");
+						for (final Peca p : pecas) {
+							if (p.getTipoPeca() == TipoPeca.EM_BRANCO){
+								boolean pecasVizinhasEmBranco = true;
+								for (final Peca p2 : p.getPecasVizinhas()){
+									if (p2.getTipoPeca() == player1.getTipoPeca()) {
+										pecasVizinhasEmBranco = false;
+										break;
+									}
+								}
+								if (pecasVizinhasEmBranco){ //Efetuar jogada
+									p.setTipoPeca(player1.getTipoPeca());
+									player1.addPeca(p);
+									player1.diminuiQtdPecasIniciais();
+									jogadaEfetuada = true;
+									break;
+								}
+							}
+						}
+					}
+					
+					if (!jogadaEfetuada) {
+						// Verificar se o Bot tem alguma Peça em que a Peça vizinha está em branco.
+						System.out.println("Buscando peças vizinhas do Bot em branco...");
+						for (final Peca p : player1.getPecas()) {
+							for (final Peca p2 : p.getPecasVizinhas()) {
+								if (p2.getTipoPeca() == TipoPeca.EM_BRANCO){
+									p2.setTipoPeca(player1.getTipoPeca());
+									player1.addPeca(p2);
+									player1.diminuiQtdPecasIniciais();
+									jogadaEfetuada = true;
+									break;
+								}
+							}
+							if (jogadaEfetuada) break;
+						}
+					}
+					
+					//Se nenhum caso der certo, jogar em qualquer lugar que tenha uma peça em branco.
+					if (!jogadaEfetuada) {
+						final List<Peca> pecasEmBranco = new ArrayList<>();
+						System.out.println("Jogando em qualquer lugar em branco...");
+						for (final Peca p : pecas) {
+							if (p.getTipoPeca() == TipoPeca.EM_BRANCO) {
+								pecasEmBranco.add(p);
+							}
+						}
+						int index = new Random().nextInt(pecasEmBranco.size()-1);
+						final Peca p = pecas.get(index);
+						p.setTipoPeca(player1.getTipoPeca());
+						player1.addPeca(p);
+						player1.diminuiQtdPecasIniciais();
+						jogadaEfetuada = true;
+					}
+				}
+				
+				//pbBotPlaying.setIndeterminate(false);
+				player1.passarJogada();
+				refreshStatusCaptions();
+			}
+		}).start();
 	}
 }

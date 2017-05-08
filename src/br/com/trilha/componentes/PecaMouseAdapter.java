@@ -21,6 +21,24 @@ public class PecaMouseAdapter extends MouseAdapter {
 	public void mouseClicked(MouseEvent e) {
 		//Verificar se o objeto é uma peça
 		if(e.getSource() != null && e.getSource() instanceof Peca){
+			
+			if (tabuleiro.getJogadorDaVez().isMoinhoDetectado()) {
+				Peca p = (Peca) e.getSource();
+				if (p.getTipoPeca() == tabuleiro.getJogadorDaVez().getAdversario().getTipoPeca()) {
+					p.setTipoPeca(TipoPeca.EM_BRANCO);
+					
+					tabuleiro.getJogadorDaVez().getAdversario().removerPeca(p);
+					tabuleiro.getJogadorDaVez().addPecaAdversario(p);
+					tabuleiro.getJogadorDaVez().setMoinhoDetectado(false);
+					tabuleiro.getJogadorDaVez().passarJogada();
+					tabuleiro.refreshStatusCaptions();
+				}
+				return;
+			}
+			
+			//Verificar se é o BOT jogando, e não permitir o evento.
+			if (tabuleiro.getPlayer1().isVezDoJogador()) return;
+			
 			//Verificar se todas as peças já foram adicionadas no jogo
 			if(tabuleiro.gameStarted){
 				//Verificar se a peça de origem já foi selecionada
@@ -52,11 +70,16 @@ public class PecaMouseAdapter extends MouseAdapter {
 						destinoPeca.setTipoPeca(selectedPeca.getTipoPeca());
 						selectedPeca.setTipoPeca(TipoPeca.EM_BRANCO);
 						
-						//TODO Identificar moinhos
-						//TODO Se identificado moinho, permitir remover uma peça do adversário.
-						//TODO Validar para não permitir remover peça de uma trilha do adversário.
+						boolean moinhoDetectado = destinoPeca.isMoinho(); 
+						if (moinhoDetectado){
+							JOptionPane.showMessageDialog(null, "Moinho detectado. Selecione uma peça do adversário para remover.", "Moinho detectado", JOptionPane.INFORMATION_MESSAGE);
+						}
 						
-						tabuleiro.getJogadorDaVez().passarJogada();
+						if (moinhoDetectado) {
+							tabuleiro.getJogadorDaVez().setMoinhoDetectado(true);
+						} else {
+							tabuleiro.getJogadorDaVez().passarJogada();
+						}
 						tabuleiro.refreshStatusCaptions();
 						
 						destinoPeca = null;
@@ -69,17 +92,19 @@ public class PecaMouseAdapter extends MouseAdapter {
 					}
 				}
 			} else {
-				Peca selected = (Peca) e.getSource();
+				final Peca selected = (Peca) e.getSource();
 				System.out.println(selected.toString());
 				
 				if (selected.getTipoPeca() == TipoPeca.EM_BRANCO){
 					selected.setTipoPeca(tabuleiro.getJogadorDaVez().getTipoPeca());
 					tabuleiro.getJogadorDaVez().addPeca(selected);
 					tabuleiro.getJogadorDaVez().diminuiQtdPecasIniciais();
-					tabuleiro.getJogadorDaVez().passarJogada();
-					if (tabuleiro.getPlayer1().getQtdPecasIniciaisRestantes() == 0 && tabuleiro.getPlayer2().getQtdPecasIniciaisRestantes() == 0) {
-						tabuleiro.gameStarted = true;
-						System.out.println("Peças colocadas. Jogo começa agora.");
+					boolean moinhoDetectado = selected.isMoinho(); 
+					if (moinhoDetectado){
+						tabuleiro.getJogadorDaVez().setMoinhoDetectado(true);
+						JOptionPane.showMessageDialog(null, "Moinho detectado. Selecione uma peça do adversário para remover.", "Moinho detectado", JOptionPane.INFORMATION_MESSAGE);
+					} else {
+						tabuleiro.getJogadorDaVez().passarJogada();
 					}
 					tabuleiro.refreshStatusCaptions();
 				} else {

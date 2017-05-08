@@ -7,14 +7,15 @@ import br.com.trilha.enums.TipoPeca;
 
 public class Player {
 	
-	private List<Peca> pecas;
-	private List<Peca> pecasAdversario;
+	public List<Peca> pecas;
+	public List<Peca> pecasAdversario;
 	private String nome;
 	private boolean vezDoJogador;
 	private boolean movimentaPecasEmQualquerLugar;
 	private TipoPeca tipoPeca;
 	private Player adversario;
 	private int qtdPecasIniciaisRestantes;
+	private boolean moinhoDetectado;
 	
 	public Player(String nome, TipoPeca tipoPeca){
 		setNome(nome);
@@ -71,6 +72,9 @@ public class Player {
 		return peca;
 	}
 	
+	public void removerPeca(Peca peca){
+		pecas.remove(peca);
+	}
 	/**
 	 * Adiciona 
 	 */
@@ -111,6 +115,10 @@ public class Player {
 		adversario.setVezDoJogador(true);
 	}
 
+	public Player getAdversario() {
+		return adversario;
+	}
+
 	public int getQtdPecasIniciaisRestantes() {
 		return qtdPecasIniciaisRestantes;
 	}
@@ -119,9 +127,21 @@ public class Player {
 		this.qtdPecasIniciaisRestantes = qtdPecasIniciaisRestantes;
 	}
 	
+	public List<Peca> getPecas(){
+		return this.pecas;
+	}
+	
 	public void diminuiQtdPecasIniciais(){
 		if (qtdPecasIniciaisRestantes > 0) {
 			qtdPecasIniciaisRestantes -= 1;
 		}
+	}
+
+	public boolean isMoinhoDetectado() {
+		return moinhoDetectado;
+	}
+
+	public void setMoinhoDetectado(boolean moinhoDetectado) {
+		this.moinhoDetectado = moinhoDetectado;
 	}
 }
