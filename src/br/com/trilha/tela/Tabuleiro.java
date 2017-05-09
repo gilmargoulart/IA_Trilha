@@ -887,7 +887,7 @@ public class Tabuleiro extends JFrame {
 							}
 						}
 						
-						if (!pecaRemovida) {
+						if (pecaRemovida) {
 							for (Peca p : pecas) {
 								if (p.getTipoPeca() == player2.getTipoPeca()) {
 									p.setTipoPeca(TipoPeca.EM_BRANCO);
